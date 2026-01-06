@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Scissors, 
   Calendar, 
@@ -19,8 +19,8 @@ import {
 // --- Utilitários ---
 
 /**
- * Função de scroll robusta para ambientes de produção (Vercel/GitHub Pages).
- * Evita o comportamento padrão da âncora que pode causar recarregamento de página.
+ * Função de scroll robusta para ambientes de produção.
+ * Evita o comportamento padrão da âncora que causa erros de rota no preview.
  */
 const scrollToId = (id: string) => {
   const element = document.getElementById(id.replace('#', ''));
@@ -38,10 +38,6 @@ const scrollToId = (id: string) => {
 
 // --- Componentes Reutilizáveis ---
 
-/**
- * Componente de imagem com fallback. 
- * Se a imagem falhar (CORS ou erro de rede), exibe um placeholder elegante.
- */
 const SafeImage: React.FC<{ src: string; alt: string; className?: string }> = ({ src, alt, className }) => {
   const [error, setError] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -103,8 +99,7 @@ const Navbar: React.FC = () => {
     { name: 'Contato', id: 'contato' },
   ];
 
-  const handleNavClick = (e: React.MouseEvent, id: string) => {
-    e.preventDefault();
+  const handleNavClick = (id: string) => {
     scrollToId(id);
     setIsMenuOpen(false);
   };
@@ -119,7 +114,7 @@ const Navbar: React.FC = () => {
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6">
         <button 
-          onClick={(e) => handleNavClick(e, 'inicio')}
+          onClick={() => handleNavClick('inicio')}
           className="flex items-center gap-3 group bg-transparent border-none cursor-pointer p-0"
         >
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary group-hover:bg-primary group-hover:text-background-dark transition-all duration-300">
@@ -132,7 +127,7 @@ const Navbar: React.FC = () => {
           {navLinks.map((link) => (
             <button 
               key={link.name}
-              onClick={(e) => handleNavClick(e, link.id)}
+              onClick={() => handleNavClick(link.id)}
               className="text-sm font-semibold text-zinc-400 hover:text-primary transition-colors cursor-pointer bg-transparent border-none py-2"
             >
               {link.name}
@@ -151,6 +146,7 @@ const Navbar: React.FC = () => {
           <button 
             className="md:hidden text-white p-2 bg-zinc-800/50 rounded-lg border-none cursor-pointer"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="Toggle Menu"
           >
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -162,15 +158,15 @@ const Navbar: React.FC = () => {
           {navLinks.map((link) => (
             <button 
               key={link.name}
-              onClick={(e) => handleNavClick(e, link.id)}
-              className="text-left text-lg font-bold text-zinc-300 hover:text-primary bg-transparent border-none p-2"
+              onClick={() => handleNavClick(link.id)}
+              className="text-left text-lg font-bold text-zinc-300 hover:text-primary bg-transparent border-none p-2 cursor-pointer"
             >
               {link.name}
             </button>
           ))}
           <button 
             onClick={() => { scrollToId('contato'); setIsMenuOpen(false); }}
-            className="h-14 w-full flex items-center justify-center rounded-xl bg-primary px-5 text-base font-black text-[#1a1a1a] border-none mt-4"
+            className="h-14 w-full flex items-center justify-center rounded-xl bg-primary px-5 text-base font-black text-[#1a1a1a] border-none mt-4 cursor-pointer"
           >
             AGENDAR HORÁRIO
           </button>
@@ -362,7 +358,7 @@ const Location: React.FC = () => {
               <p className="text-zinc-400 font-bold mb-8">O melhor ponto de São Paulo para seu cuidado pessoal.</p>
               
               <button 
-                onClick={() => window.open(mapsUrl, '_blank')}
+                onClick={() => window.open(mapsUrl, '_blank', 'noopener,noreferrer')}
                 className="flex items-center gap-3 rounded-2xl bg-white px-8 py-4 text-sm font-black text-black hover:bg-zinc-200 transition-all transform hover:scale-105 border-none cursor-pointer"
               >
                 ABRIR NO GOOGLE MAPS
@@ -383,7 +379,6 @@ const Contact: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // Simulação de envio
     setTimeout(() => {
       alert(`Obrigado, ${formState.name}! Sua mensagem foi enviada. Entraremos em contato em breve.`);
       setFormState({ name: '', email: '', msg: '' });
@@ -402,15 +397,23 @@ const Contact: React.FC = () => {
             </p>
             
             <div className="flex gap-4">
-              <a href="#" className="h-14 w-14 flex items-center justify-center rounded-2xl bg-zinc-900 border border-white/5 text-white hover:text-primary hover:border-primary/40 transition-all">
+              <button 
+                onClick={() => window.open('https://instagram.com', '_blank', 'noopener,noreferrer')}
+                className="h-14 w-14 flex items-center justify-center rounded-2xl bg-zinc-900 border border-white/5 text-white hover:text-primary hover:border-primary/40 transition-all cursor-pointer"
+              >
                 <Instagram size={24} />
-              </a>
-              <a href="#" className="h-14 w-14 flex items-center justify-center rounded-2xl bg-zinc-900 border border-white/5 text-white hover:text-primary hover:border-primary/40 transition-all">
+              </button>
+              <button 
+                onClick={() => window.open('https://facebook.com', '_blank', 'noopener,noreferrer')}
+                className="h-14 w-14 flex items-center justify-center rounded-2xl bg-zinc-900 border border-white/5 text-white hover:text-primary hover:border-primary/40 transition-all cursor-pointer"
+              >
                 <Facebook size={24} />
-              </a>
-              <a href="#" className="h-14 w-14 flex items-center justify-center rounded-2xl bg-zinc-900 border border-white/5 text-white hover:text-primary hover:border-primary/40 transition-all">
+              </button>
+              <button 
+                className="h-14 w-14 flex items-center justify-center rounded-2xl bg-zinc-900 border border-white/5 text-white hover:text-primary hover:border-primary/40 transition-all cursor-pointer"
+              >
                 <Phone size={24} />
-              </a>
+              </button>
             </div>
           </div>
           
@@ -471,7 +474,10 @@ const Footer: React.FC = () => {
     <footer className="bg-zinc-950 py-16 px-6 border-t border-white/5">
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col md:flex-row justify-between items-center gap-10">
-          <div className="flex items-center gap-4">
+          <button 
+            onClick={() => scrollToId('inicio')}
+            className="flex items-center gap-4 bg-transparent border-none cursor-pointer p-0 text-left"
+          >
             <div className="h-12 w-12 flex items-center justify-center bg-primary rounded-2xl text-black">
               <Scissors size={24} />
             </div>
@@ -479,13 +485,13 @@ const Footer: React.FC = () => {
               <h3 className="text-2xl font-black text-white tracking-tighter">Barbearia Gold</h3>
               <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest">Desde 2015</p>
             </div>
-          </div>
+          </button>
           
           <div className="flex flex-wrap justify-center gap-8">
             {['Início', 'Serviços', 'Localização', 'Contato'].map((item) => (
               <button 
                 key={item}
-                onClick={() => scrollToId(item.toLowerCase())}
+                onClick={() => scrollToId(item.toLowerCase() === 'início' ? 'inicio' : item.toLowerCase())}
                 className="text-sm font-bold text-zinc-400 hover:text-white transition-colors cursor-pointer bg-transparent border-none"
               >
                 {item}
